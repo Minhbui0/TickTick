@@ -10,6 +10,7 @@ namespace Engine
         // standard MonoGame objects for graphics and sprites
         protected GraphicsDeviceManager graphics;
         protected SpriteBatch spriteBatch;
+        public static Camera Camera { get; protected set; }
 
         // object for handling keyboard and mouse input
         protected InputHelper inputHelper;
@@ -78,6 +79,8 @@ namespace Engine
             // prepare an empty game state manager
             GameStateManager = new GameStateManager();
 
+            Camera = new Camera(worldSize);
+
             // by default, we're not running in full-screen mode
             FullScreen = false;
         }
@@ -118,8 +121,19 @@ namespace Engine
         {
             GraphicsDevice.Clear(Color.Black);
 
+            Matrix transformationMatrix = Camera.GetTransformationMatrix() * spriteScale;
+
             // start drawing sprites, applying the scaling matrix
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, null, null, null, null, null, spriteScale);
+            Matrix worldToScreen = Camera.GetTransformationMatrix() * spriteScale; // combine camera + scale 
+            spriteBatch.Begin(
+                SpriteSortMode.FrontToBack,
+                blendState: BlendState.AlphaBlend,
+                samplerState: SamplerState.PointClamp,
+                depthStencilState: null,
+                rasterizerState: null,
+                effect: null,
+                transformMatrix: worldToScreen
+            ); 
 
             // let the game world draw itself
             GameStateManager.Draw(gameTime, spriteBatch);
@@ -153,6 +167,8 @@ namespace Engine
 
             // calculate how the graphics should be scaled, so that the game world fits inside the window
             spriteScale = Matrix.CreateScale((float)GraphicsDevice.Viewport.Width / worldSize.X, (float)GraphicsDevice.Viewport.Height / worldSize.Y, 1);
+
+          
         }
 
         /// <summary>
@@ -207,7 +223,8 @@ namespace Engine
         {
             Vector2 viewportTopLeft = new Vector2(GraphicsDevice.Viewport.X, GraphicsDevice.Viewport.Y);
             float screenToWorldScale = worldSize.X / (float)GraphicsDevice.Viewport.Width;
-            return (screenPosition - viewportTopLeft) * screenToWorldScale;
+            Vector2 worldPos = (screenPosition - viewportTopLeft) * screenToWorldScale;
+            return Camera.ScreenToWorld(worldPos);
         }
     }
 }
