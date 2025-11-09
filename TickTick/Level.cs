@@ -16,38 +16,57 @@ partial class Level : GameObjectList
 
     SpriteGameObject goal;
     BombTimer timer;
-
     bool completionDetected;
+
+    // Properties for level dimensions
+    public int LevelWidth { get; private set; }
+    public int LevelHeight { get; private set; }
 
     public Level(int levelIndex, string filename)
     {
         LevelIndex = levelIndex;
 
-        // load the background
-        GameObjectList backgrounds = new GameObjectList();
-        SpriteGameObject backgroundSky = new SpriteGameObject("Sprites/Backgrounds/spr_sky", TickTick.Depth_Background);
-        backgroundSky.LocalPosition = new Vector2(0, 825 - backgroundSky.Height);
-        backgrounds.AddChild(backgroundSky);
-
-        AddChild(backgrounds);
-
         // load the rest of the level
         LoadLevelFromFile(filename);
+
+        // Calculate level dimensions after loading tiles
+        LevelWidth = tiles.GetLength(0) * TileWidth;
+        LevelHeight = tiles.GetLength(1) * TileHeight;
+
+        // load the backgrounds
+        LoadBackgrounds();
 
         // add the timer
         timer = new BombTimer();
         AddChild(timer);
+    }
 
-        // add mountains in the background
-        for (int i = 0; i < 4; i++)
+    private void LoadBackgrounds()
+    {
+        GameObjectList backgrounds = new GameObjectList();
+
+        // Background sky - tile it horizontally if level is wider than default
+        int numSkyTiles = (int)Math.Ceiling((float)LevelWidth / 1440f);
+        if (numSkyTiles < 1) numSkyTiles = 1;
+
+        for (int i = 0; i < numSkyTiles; i++)
+        {
+            SpriteGameObject backgroundSky = new SpriteGameObject("Sprites/Backgrounds/spr_sky", TickTick.Depth_Background);
+            backgroundSky.LocalPosition = new Vector2(i * 1440, 825 - backgroundSky.Height);
+            backgrounds.AddChild(backgroundSky);
+        }
+
+        AddChild(backgrounds);
+
+        // Add mountains with some variation - scale based on level width
+        int numMountains = Math.Max(4, (int)Math.Ceiling((float)LevelWidth / 360f));
+        for (int i = 0; i < numMountains; i++)
         {
             SpriteGameObject mountain = new SpriteGameObject(
                 "Sprites/Backgrounds/spr_mountain_" + (ExtendedGame.Random.Next(2) + 1),
                 TickTick.Depth_Background + 0.01f * (float)ExtendedGame.Random.NextDouble());
-
-            mountain.LocalPosition = new Vector2(mountain.Width * (i-1) * 0.4f, 
-                BoundingBox.Height - mountain.Height);
-
+            mountain.LocalPosition = new Vector2(mountain.Width * (i - 1) * 0.4f,
+                LevelHeight - mountain.Height);
             backgrounds.AddChild(mountain);
         }
 
@@ -60,9 +79,7 @@ partial class Level : GameObjectList
     {
         get
         {
-            return new Rectangle(0, 0,
-                tiles.GetLength(0) * TileWidth,
-                tiles.GetLength(1) * TileHeight);
+            return new Rectangle(0, 0, LevelWidth, LevelHeight);
         }
     }
 
@@ -107,22 +124,35 @@ partial class Level : GameObjectList
     {
         base.Update(gameTime);
 
+        // Update camera to follow player
+        if (Player != null && Player.IsAlive)
+        {
+            UpdateCamera();
+        }
+
         // check if we've finished the level
         if (!completionDetected && AllDropsCollected && Player.HasPixelPreciseCollision(goal))
         {
             completionDetected = true;
             ExtendedGameWithLevels.GetPlayingState().LevelCompleted(LevelIndex);
             Player.Celebrate();
-
             // stop the timer
             timer.Running = false;
         }
-
         // check if the timer has passed
         else if (Player.IsAlive && timer.HasPassed)
         {
             Player.Explode();
         }
+    }
+
+    private void UpdateCamera()
+    {
+        // Center camera on player
+        ExtendedGame.Camera.CenterOn(Player.GlobalPosition);
+
+        // Clamp camera to level bounds
+        ExtendedGame.Camera.ClampToWorld(LevelWidth, LevelHeight);
     }
 
     /// <summary>
@@ -145,4 +175,3 @@ partial class Level : GameObjectList
         completionDetected = false;
     }
 }
-

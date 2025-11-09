@@ -10,7 +10,6 @@ namespace Engine
         // standard MonoGame objects for graphics and sprites
         protected GraphicsDeviceManager graphics;
         protected SpriteBatch spriteBatch;
-        public static Camera Camera { get; protected set; }
 
         // object for handling keyboard and mouse input
         protected InputHelper inputHelper;
@@ -44,6 +43,11 @@ namespace Engine
         /// The object that manages all game states, one of which is the active state.
         /// </summary>
         public static GameStateManager GameStateManager { get; private set; }
+
+        /// <summary>
+        /// The camera that defines which part of the world is currently visible.
+        /// </summary>
+        public static Camera Camera { get; protected set; }
 
         public static string ContentRootDirectory { get { return "Content"; } }
 
@@ -79,6 +83,7 @@ namespace Engine
             // prepare an empty game state manager
             GameStateManager = new GameStateManager();
 
+            // initialize camera with world size
             Camera = new Camera(worldSize);
 
             // by default, we're not running in full-screen mode
@@ -121,19 +126,12 @@ namespace Engine
         {
             GraphicsDevice.Clear(Color.Black);
 
-            Matrix transformationMatrix = Camera.GetTransformationMatrix() * spriteScale;
+            // Create transformation matrix that combines camera offset and scaling
+            Matrix cameraTransform = Matrix.CreateTranslation(-Camera.Position.X, -Camera.Position.Y, 0);
+            Matrix combinedTransform = cameraTransform * spriteScale;
 
-            // start drawing sprites, applying the scaling matrix
-            Matrix worldToScreen = Camera.GetTransformationMatrix() * spriteScale; // combine camera + scale 
-            spriteBatch.Begin(
-                SpriteSortMode.FrontToBack,
-                blendState: BlendState.AlphaBlend,
-                samplerState: SamplerState.PointClamp,
-                depthStencilState: null,
-                rasterizerState: null,
-                effect: null,
-                transformMatrix: worldToScreen
-            ); 
+            // start drawing sprites, applying the combined transformation matrix
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, null, null, null, null, null, combinedTransform);
 
             // let the game world draw itself
             GameStateManager.Draw(gameTime, spriteBatch);
@@ -152,7 +150,8 @@ namespace Engine
             // get the size of the screen to use: either the window size or the full screen size
             Point screenSize;
             if (fullScreen)
-                screenSize = new Point(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+                screenSize = new Point(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
+                                      GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             else
                 screenSize = windowSize;
 
@@ -166,9 +165,10 @@ namespace Engine
             GraphicsDevice.Viewport = CalculateViewport(screenSize);
 
             // calculate how the graphics should be scaled, so that the game world fits inside the window
-            spriteScale = Matrix.CreateScale((float)GraphicsDevice.Viewport.Width / worldSize.X, (float)GraphicsDevice.Viewport.Height / worldSize.Y, 1);
-
-          
+            spriteScale = Matrix.CreateScale(
+                (float)GraphicsDevice.Viewport.Width / worldSize.X,
+                (float)GraphicsDevice.Viewport.Height / worldSize.Y,
+                1);
         }
 
         /// <summary>
@@ -224,7 +224,9 @@ namespace Engine
             Vector2 viewportTopLeft = new Vector2(GraphicsDevice.Viewport.X, GraphicsDevice.Viewport.Y);
             float screenToWorldScale = worldSize.X / (float)GraphicsDevice.Viewport.Width;
             Vector2 worldPos = (screenPosition - viewportTopLeft) * screenToWorldScale;
-            return Camera.ScreenToWorld(worldPos);
+
+            // Add camera offset to get true world position
+            return worldPos + Camera.Position;
         }
     }
 }
