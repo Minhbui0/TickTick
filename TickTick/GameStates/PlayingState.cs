@@ -8,14 +8,32 @@ class PlayingState : GameState, IPlayingState
 {
     Level level;
     Button quitButton;
-    SpriteGameObject completedOverlay, gameOverOverlay;
+    SpriteGameObject completedOverlay, gameOverOverlay, hintFrame;
+    TextGameObject hintText;
+    BombTimer timer;
+
 
     public PlayingState()
     {
         // add a "quit" button
         quitButton = new Button("Sprites/UI/spr_button_quit", 1);
         quitButton.LocalPosition = new Vector2(1290, 20);
-        gameObjects.AddChild(quitButton);
+        ui.AddChild(quitButton);
+
+        // add the timer
+        timer = new BombTimer();
+        timer.LocalPosition = new Vector2(20, 20);
+        ui.AddChild(timer);
+
+        // Add the hint UI elements to the ui list
+        hintFrame = new SpriteGameObject("Sprites/UI/spr_frame_hint", TickTick.Depth_UIBackground);
+        hintFrame.SetOriginToCenter();
+        hintFrame.LocalPosition = new Vector2(720, 50);
+        ui.AddChild(hintFrame);
+
+        hintText = new TextGameObject("Fonts/HintFont", TickTick.Depth_UIForeground, Color.Black, TextGameObject.Alignment.Left);
+        hintText.LocalPosition = new Vector2(510, 40);
+        ui.AddChild(hintText);
 
         // add overlay images
         completedOverlay = AddOverlay("Sprites/UI/spr_welldone");
@@ -27,7 +45,7 @@ class PlayingState : GameState, IPlayingState
         SpriteGameObject result = new SpriteGameObject(spriteName, 1);
         result.SetOriginToCenter();
         result.LocalPosition = new Vector2(720, 412);
-        gameObjects.AddChild(result);
+        ui.AddChild(result);
         return result;
     }
 
@@ -37,11 +55,17 @@ class PlayingState : GameState, IPlayingState
 
         if (level != null)
         {
-            // if the player character has died, allow the player to reset the level
+            // if the player character has died, allow the player to reset the level (inludes restarting the timer).
             if (gameOverOverlay.Visible)
             {
                 if (inputHelper.KeyPressed(Keys.Space))
+                { 
                     level.Reset();
+                    timer.Reset();
+                    timer.Running = true;
+                    hintFrame.Visible = true;
+                    hintText.Visible = true;
+                }
             }
             
             // if the level has been completed, pressing the spacebar should send the player to the next level
@@ -67,10 +91,19 @@ class PlayingState : GameState, IPlayingState
         base.Update(gameTime);
 
         if (level != null)
+        {
             level.Update(gameTime);
 
-        // show or hide the "game over" image
-        gameOverOverlay.Visible = !level.Player.IsAlive;
+            // show or hide the "game over" image
+            gameOverOverlay.Visible = !level.Player.IsAlive;
+
+            if (!level.Player.IsAlive)
+            {
+                timer.Running = false;
+                //hintFrame.Visible = false;
+                //hintText.Visible = false;
+            }
+        }
     }
 
     public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -84,7 +117,18 @@ class PlayingState : GameState, IPlayingState
     {
         level = new Level(levelIndex, ExtendedGame.ContentRootDirectory + "/Levels/level" + levelIndex + ".txt");
 
-        // hide the overlay images
+        level.Timer = this.timer;
+
+        // Reset and start the timer for the new level
+        timer.Reset();
+        timer.Running = true;
+
+        // Set the hint text from the level's description
+        hintText.Text = level.Description ?? "";
+        hintFrame.Visible = true;
+        hintText.Visible = true;
+
+        // Hide the overlay images
         completedOverlay.Visible = false;
         gameOverOverlay.Visible = false;
     }
@@ -93,6 +137,10 @@ class PlayingState : GameState, IPlayingState
     {
         // show an overlay image
         completedOverlay.Visible = true;
+
+        // Hide hint text on level complete
+        hintFrame.Visible = false;
+        hintText.Visible = false;
 
         // play a sound
         ExtendedGame.AssetManager.PlaySoundEffect("Sounds/snd_won");

@@ -89,6 +89,17 @@ namespace Engine
         }
 
         /// <summary>
+        /// Makes sure that the currently active game state calls DrawUI.
+        /// </summary>
+        /// <param name="gameTime">An object containing information about the time that has passed in the game.</param>
+        /// <param name="spriteBatch">A sprite batch object used for drawing sprites.</param>
+        public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            if (currentGameState != null)
+                currentGameState.DrawUI(gameTime, spriteBatch);
+        }
+
+        /// <summary>
         /// Makes sure that the currently active game state calls Reset.
         /// </summary>
         public void Reset()

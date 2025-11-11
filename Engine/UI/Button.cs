@@ -1,10 +1,14 @@
-﻿namespace Engine.UI
+﻿using Microsoft.Xna.Framework;
+
+namespace Engine.UI
 {
     /// <summary>
     /// A class that can represent a UI button in the game.
     /// </summary>
     public class Button : SpriteGameObject
     {
+        Vector2 mouseUIPosition;
+
         /// <summary>
         /// Whether this button has been pressed (clicked) in the current frame.
         /// </summary>
@@ -22,8 +26,11 @@
 
         public override void HandleInput(InputHelper inputHelper)
         {
+            // Convert the world mouse position to a UI mouse position by subtracting the camera's offset
+            Vector2 mouseUIPosition = inputHelper.MousePositionWorld - ExtendedGame.Camera.Position;
+
             Pressed = Visible && inputHelper.MouseLeftButtonPressed()
-                && BoundingBox.Contains(inputHelper.MousePositionWorld);
+                && BoundingBox.Contains(mouseUIPosition);
         }
 
         public override void Reset()

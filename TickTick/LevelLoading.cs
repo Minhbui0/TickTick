@@ -5,13 +5,15 @@ using System.IO;
 
 partial class Level : GameObjectList
 {
+    public string Description { get; private set; }
+
     void LoadLevelFromFile(string filename)
     {
         // open the file
         StreamReader reader = new StreamReader(filename);
 
         // read the description
-        string description = reader.ReadLine();
+        Description = reader.ReadLine();
 
         // read the rows of the grid; keep track of the longest row
         int gridWidth = 0;
@@ -32,24 +34,6 @@ partial class Level : GameObjectList
         
         // create all game objects for the grid
         AddPlayingField(gridRows, gridWidth, gridRows.Count);
-
-        // add game objects to show that general level info
-        AddLevelInfoObjects(description);
-    }
-
-    void AddLevelInfoObjects(string description)
-    {
-        // - background box
-        SpriteGameObject frame = new SpriteGameObject("Sprites/UI/spr_frame_hint", TickTick.Depth_UIBackground);
-        frame.SetOriginToCenter();
-        frame.LocalPosition = new Vector2(720, 50);
-        AddChild(frame);
-
-        // - text
-        TextGameObject hintText = new TextGameObject("Fonts/HintFont", TickTick.Depth_UIForeground, Color.Black, TextGameObject.Alignment.Left);
-        hintText.Text = description;
-        hintText.LocalPosition = new Vector2(510, 40);
-        AddChild(hintText);
     }
 
     void AddPlayingField(List<string> gridRows, int gridWidth, int gridHeight)

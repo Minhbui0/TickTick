@@ -14,13 +14,13 @@ class LevelMenuState : GameState
     {
         // add a background
         SpriteGameObject background = new SpriteGameObject("Sprites/Backgrounds/spr_levelselect", TickTick.Depth_Background);
-        gameObjects.AddChild(background);
+        ui.AddChild(background);
 
         // add a back button
         backButton = new Button("Sprites/UI/spr_button_back", TickTick.Depth_UIForeground);
         backButton.LocalPosition = new Vector2(720, 690);
         backButton.SetOriginToCenter();
-        gameObjects.AddChild(backButton);
+        ui.AddChild(backButton);
 
         // Add a level button for each level.
         levelButtons = new LevelButton[ExtendedGameWithLevels.NumberOfLevels];
@@ -45,7 +45,7 @@ class LevelMenuState : GameState
             );
 
             // add the button as a child object
-            gameObjects.AddChild(levelButton);
+            ui.AddChild(levelButton);
             // also store it in the array of level buttons
             levelButtons[i] = levelButton;
         }

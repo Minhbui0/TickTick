@@ -27,7 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="Content\Levels\level1.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Content\Levels\level10.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

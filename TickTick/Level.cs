@@ -35,10 +35,6 @@ partial class Level : GameObjectList
 
         // load the backgrounds
         LoadBackgrounds();
-
-        // add the timer
-        timer = new BombTimer();
-        AddChild(timer);
     }
 
     private void LoadBackgrounds()
@@ -83,7 +79,11 @@ partial class Level : GameObjectList
         }
     }
 
-    public BombTimer Timer { get { return timer; } }
+    public BombTimer Timer
+    {
+        get { return timer; } 
+        set { timer = value; }
+    }
 
     public Vector2 GetCellPosition(int x, int y)
     {
@@ -137,7 +137,8 @@ partial class Level : GameObjectList
             ExtendedGameWithLevels.GetPlayingState().LevelCompleted(LevelIndex);
             Player.Celebrate();
             // stop the timer
-            timer.Running = false;
+            if (timer != null)
+                timer.Running = false;
         }
         // check if the timer has passed
         else if (Player.IsAlive && timer.HasPassed)

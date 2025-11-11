@@ -126,15 +126,27 @@ namespace Engine
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // Create transformation matrix that combines camera offset and scaling
+            // Create transformation matrix that combines camera offset and scaling. Draws the world (with camera).
             Matrix cameraTransform = Matrix.CreateTranslation(-Camera.Position.X, -Camera.Position.Y, 0);
-            Matrix combinedTransform = cameraTransform * spriteScale;
+            Matrix worldTransform = cameraTransform * spriteScale;
 
-            // start drawing sprites, applying the combined transformation matrix
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, null, null, null, null, null, combinedTransform);
+            // Start drawing sprites, applying the world transformation matrix.
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, worldTransform);
 
-            // let the game world draw itself
+            // Let the game world draw itself.
             GameStateManager.Draw(gameTime, spriteBatch);
+
+            spriteBatch.End();
+
+
+            // Draws the UI (without camera).
+            Matrix uiTransform = spriteScale; // By omitting cameraTransform, the UI elements are not influenced by the camera's movement.
+
+            // Start drawing sprites, applying the UI transformation matrix.
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, uiTransform);
+
+            // Let the UI draw itself.
+            GameStateManager.DrawUI(gameTime, spriteBatch);
 
             spriteBatch.End();
         }
@@ -227,6 +239,21 @@ namespace Engine
 
             // Add camera offset to get true world position
             return worldPos + Camera.Position;
+        }
+
+        /// <summary>
+        /// Converts a position in screen coordinates to a position in UI coordinates.
+        /// This ignores the camera's position.
+        /// </summary>
+        /// <param name="screenPosition">A position in screen coordinates.</param>
+        /// <returns>The corresponding position in UI coordinates.</returns>
+        public Vector2 ScreenToUI(Vector2 screenPosition)
+        {
+            Vector2 viewportTopLeft = new Vector2(GraphicsDevice.Viewport.X, GraphicsDevice.Viewport.Y);
+            float screenToWorldScale = worldSize.X / (float)GraphicsDevice.Viewport.Width;
+            Vector2 uiPos = (screenPosition - viewportTopLeft) * screenToWorldScale;
+
+            return uiPos;
         }
     }
 }
