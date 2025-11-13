@@ -1,11 +1,11 @@
 ﻿using Engine;
 using Microsoft.Xna.Framework;
 
-class Cloud : SpriteGameObject
+class Cloud : ParallaxGameObject
 {
     Level level;
 
-    public Cloud(Level level) : base(null, TickTick.Depth_Background)
+    public Cloud(Level level) : base(null, TickTick.Depth_Background, 1.0f, 0)
     {
         this.level = level;
         Reset();
@@ -23,6 +23,9 @@ class Cloud : SpriteGameObject
     {
         // set a random sprite and depth
         float depth = TickTick.Depth_Background + (float)ExtendedGame.Random.NextDouble() * 0.2f;
+
+        // random parallax effect
+        ParallaxFactor = 0.65f + (float)ExtendedGame.Random.NextDouble() * 0.15f;
         sprite = new SpriteSheet("Sprites/Backgrounds/spr_cloud_" + ExtendedGame.Random.Next(1, 6), depth);
 
         // set a random y-coordinate and speed

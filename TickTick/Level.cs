@@ -47,7 +47,8 @@ partial class Level : GameObjectList
 
         for (int i = 0; i < numSkyTiles; i++)
         {
-            SpriteGameObject backgroundSky = new SpriteGameObject("Sprites/Backgrounds/spr_sky", TickTick.Depth_Background);
+            // Use ParallaxGameObject with a very high factor (moves very slowly)
+            ParallaxGameObject backgroundSky = new ParallaxGameObject("Sprites/Backgrounds/spr_sky", TickTick.Depth_Background, 0.9f);
             backgroundSky.LocalPosition = new Vector2(i * 1440, 825 - backgroundSky.Height);
             backgrounds.AddChild(backgroundSky);
         }
@@ -58,9 +59,12 @@ partial class Level : GameObjectList
         int numMountains = Math.Max(4, (int)Math.Ceiling((float)LevelWidth / 360f));
         for (int i = 0; i < numMountains; i++)
         {
-            SpriteGameObject mountain = new SpriteGameObject(
-                "Sprites/Backgrounds/spr_mountain_" + (ExtendedGame.Random.Next(2) + 1),
-                TickTick.Depth_Background + 0.01f * (float)ExtendedGame.Random.NextDouble());
+            // Use ParallaxGameObject
+            string mountainSprite = "Sprites/Backgrounds/spr_mountain_" + (ExtendedGame.Random.Next(2) + 1);
+            float randomDepth = TickTick.Depth_Background + 0.01f * (float)ExtendedGame.Random.NextDouble();
+            float parallaxFactor = 0.4f + (float)ExtendedGame.Random.NextDouble() * 0.4f;
+            ParallaxGameObject mountain = new ParallaxGameObject(mountainSprite, randomDepth, parallaxFactor);
+            
             mountain.LocalPosition = new Vector2(mountain.Width * (i - 1) * 0.4f,
                 LevelHeight - mountain.Height);
             backgrounds.AddChild(mountain);
