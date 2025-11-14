@@ -18,6 +18,12 @@ namespace Engine
         /// <summary>
         /// The current velocity of this game object, in units per second.
         /// </summary>
+        /// 
+        public Vector2 Velocity
+        {
+            get { return velocity; }
+            set { velocity = value; }
+        }
         protected Vector2 velocity;
 
         /// <summary>
