@@ -5,6 +5,7 @@ using System;
 class BombTimer : GameObjectList
 {
     double timeLeft;
+    double startTime = 30;
 
     public bool Running { get; set; }
     public float Multiplier { get; set; }
@@ -15,6 +16,7 @@ class BombTimer : GameObjectList
 
     public BombTimer()
     {
+        
         localPosition = new Vector2(20, 20);
         
         // add a background image
@@ -59,10 +61,18 @@ class BombTimer : GameObjectList
         }
     }
 
+    public void SetStartTime(double seconds)
+    { 
+        startTime = seconds;
+        timeLeft = seconds;
+
+        
+    }
+
     public override void Reset()
     {
         base.Reset();
-        timeLeft = 30;
+        timeLeft = startTime;
         Running = true;
         Multiplier = 1;
     }

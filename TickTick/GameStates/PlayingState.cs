@@ -25,6 +25,10 @@ class PlayingState : GameState, IPlayingState
         timer.LocalPosition = new Vector2(20, 20);
         ui.AddChild(timer);
 
+        
+
+       
+
         // Add the hint UI elements to the ui list
         hintFrame = new SpriteGameObject("Sprites/UI/spr_frame_hint", TickTick.Depth_UIBackground);
         hintFrame.SetOriginToCenter();
@@ -118,6 +122,8 @@ class PlayingState : GameState, IPlayingState
         level = new Level(levelIndex, ExtendedGame.ContentRootDirectory + "/Levels/level" + levelIndex + ".txt");
 
         level.Timer = this.timer;
+
+        timer.SetStartTime(level.TimeLimitSeconds);
 
         // Reset and start the timer for the new level
         timer.Reset();

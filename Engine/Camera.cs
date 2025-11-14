@@ -2,24 +2,22 @@
 
 namespace Engine
 {
-    /// <summary>
-    /// A camera that defines which part of the game world is currently visible on screen.
-    /// </summary>
+   
+
+    
     public class Camera
     {
-        /// <summary>
-        /// The position of the camera in world coordinates (top-left corner).
-        /// </summary>
+        
+        // The position of the camera in world coordinates (top-left corner).
         public Vector2 Position { get; set; }
 
-        /// <summary>
-        /// The size of the visible area (viewport size in world units).
-        /// </summary>
+       
+        // The size of the visible area (viewport size in world units).
+       
         public Point ViewportSize { get; private set; }
 
-        /// <summary>
-        /// Gets the bounds of the camera as a Rectangle.
-        /// </summary>
+        
+        // Gets the bounds of the camera as a Rectangle.
         public Rectangle Bounds
         {
             get
@@ -33,42 +31,30 @@ namespace Engine
             }
         }
 
-        /// <summary>
-        /// Creates a new Camera with the specified viewport size.
-        /// </summary>
-        /// <param name="viewportSize">The size of the visible area in world units.</param>
+        
+        //Creates a new Camera with the specified viewport size.
+              
         public Camera(Point viewportSize)
         {
             ViewportSize = viewportSize;
             Position = Vector2.Zero;
         }
 
-        /// <summary>
-        /// Converts a world position to a screen position.
-        /// </summary>
-        /// <param name="worldPosition">Position in world coordinates.</param>
-        /// <returns>Position in screen coordinates.</returns>
+      
+        // Converts a world position to a screen position.
         public Vector2 WorldToScreen(Vector2 worldPosition)
         {
             return worldPosition - Position;
         }
 
-        /// <summary>
-        /// Converts a screen position to a world position.
-        /// </summary>
-        /// <param name="screenPosition">Position in screen coordinates.</param>
-        /// <returns>Position in world coordinates.</returns>
+        // Converts a screen position to a world position.
         public Vector2 ScreenToWorld(Vector2 screenPosition)
         {
             return screenPosition + Position;
         }
 
-        /// <summary>
-        /// Centers the camera on a specific position while respecting world boundaries.
-        /// </summary>
-        /// <param name="targetPosition">The position to center on.</param>
-        /// <param name="worldWidth">Total width of the world.</param>
-        /// <param name="worldHeight">Total height of the world.</param>
+       
+        // Centers the camera on a specific position while respecting world boundaries.
         public void FollowTarget(Vector2 targetPosition, int worldWidth, int worldHeight)
         {
             // Calculate desired camera position (centered on target)
@@ -94,10 +80,8 @@ namespace Engine
             Position = new Vector2(clampedX, clampedY);
         }
 
-        /// <summary>
-        /// Centers the camera on a specific position (without bounds checking).
-        /// </summary>
-        /// <param name="targetPosition">The position to center on.</param>
+       
+        // Centers the camera on a specific position (without bounds checking).
         public void CenterOn(Vector2 targetPosition)
         {
             Position = new Vector2(
@@ -106,11 +90,8 @@ namespace Engine
             );
         }
 
-        /// <summary>
-        /// Clamps the camera position within specified world bounds.
-        /// </summary>
-        /// <param name="worldWidth">Total width of the world.</param>
-        /// <param name="worldHeight">Total height of the world.</param>
+       
+        // Clamps the camera position within specified world bounds
         public void ClampToWorld(int worldWidth, int worldHeight)
         {
             float clampedX = Position.X;

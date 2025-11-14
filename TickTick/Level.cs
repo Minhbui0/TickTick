@@ -7,6 +7,9 @@ partial class Level : GameObjectList
 {
     public const int TileWidth = 72;
     public const int TileHeight = 55;
+    public int TimeLimitSeconds { get; private set; } = 30;
+
+    
 
     Tile[,] tiles;
     List<WaterDrop> waterDrops;

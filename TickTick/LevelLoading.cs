@@ -15,6 +15,10 @@ partial class Level : GameObjectList
         // read the description
         Description = reader.ReadLine();
 
+        // time limit
+        string timeLine = reader.ReadLine();
+        TimeLimitSeconds = int.Parse(timeLine);
+
         // read the rows of the grid; keep track of the longest row
         int gridWidth = 0;
 
