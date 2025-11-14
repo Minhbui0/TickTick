@@ -47,6 +47,7 @@ partial class Level : GameObjectList
 
         // initialize the list of water drops
         waterDrops = new List<WaterDrop>();
+        
 
         // prepare the grid arrays
         tiles = new Tile[gridWidth, gridHeight];
@@ -66,6 +67,14 @@ partial class Level : GameObjectList
                 AddTile(x, y, symbol);
             }
         }
+    }
+
+    void LoadSpeedBoost(int x, int y)
+    {
+        Vector2 pos = GetCellPosition(x, y) + new Vector2(TileWidth / 2, TileHeight / 3);
+        SpeedBoost boost = new SpeedBoost(this, pos);
+        AddChild(boost);
+        
     }
 
     void AddTile(int x, int y, char symbol)
@@ -93,6 +102,10 @@ partial class Level : GameObjectList
             LoadSparkyEnemy(x, y);
         else if (symbol == 'A' || symbol == 'B' || symbol == 'C')
             LoadFlameEnemy(x, y, symbol);
+        else if (symbol == 'Z' )
+        {
+            LoadSpeedBoost(x, y);
+        }
     }
 
     Tile CharToStaticTile(char symbol)

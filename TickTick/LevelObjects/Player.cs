@@ -6,6 +6,7 @@ using System;
 class Player : AnimatedGameObject
 {
     const float walkingSpeed = 400; // Standard walking speed, in game units per second.
+    const float boostedSpeed = 800; // 2x normal walking speed, in game units per second.
     const float jumpSpeed = 900; // Lift-off speed when the character jumps.
     const float gravity = 2300; // Strength of the gravity force that pulls the character down.
     const float maxFallSpeed = 1200; // The maximum vertical speed at which the character can fall.
@@ -25,6 +26,10 @@ class Player : AnimatedGameObject
     
     bool isCelebrating; // Whether or not the player is celebrating a level victory.
     bool isExploding;
+
+    //Speed boost tracking
+    float currentWalkingSpeed;
+    float speedBoostTimeLeft;
 
     public bool IsAlive { get; private set; }
 
@@ -65,6 +70,10 @@ class Player : AnimatedGameObject
         IsAlive = true;
         isExploding = false;
         isCelebrating = false;
+
+        // reset speed boost
+        currentWalkingSpeed = walkingSpeed;
+        speedBoostTimeLeft = 0;
     }
 
     public override void HandleInput(InputHelper inputHelper)
@@ -76,14 +85,14 @@ class Player : AnimatedGameObject
         if (inputHelper.KeyDown(Keys.Left))
         {
             facingLeft = true;
-            desiredHorizontalSpeed = -walkingSpeed;
+            desiredHorizontalSpeed = -currentWalkingSpeed;
             if (isGrounded)
                 PlayAnimation("run");
         }
         else if (inputHelper.KeyDown(Keys.Right))
         {
             facingLeft = false;
-            desiredHorizontalSpeed = walkingSpeed;
+            desiredHorizontalSpeed = currentWalkingSpeed;
             if (isGrounded)
                 PlayAnimation("run");
         }
@@ -123,6 +132,9 @@ class Player : AnimatedGameObject
     /// <summary>
     /// Returns whether or not the Player is currently falling down.
     /// </summary>
+    /// 
+
+    
     public bool IsFalling
     {
         get { return velocity.Y > 0 && !isGrounded; }
@@ -135,7 +147,21 @@ class Player : AnimatedGameObject
 
     public override void Update(GameTime gameTime)
     {
+        if (speedBoostTimeLeft > 0)
+        {
+            speedBoostTimeLeft -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (speedBoostTimeLeft <= 0)
+            {
+                // Speed boost expired, return to normal speed
+                currentWalkingSpeed = walkingSpeed;
+                speedBoostTimeLeft = 0;
+            }
+        }
+
         Vector2 previousPosition = localPosition;
+
+
 
         if (CanCollideWithObjects)
             ApplyFriction(gameTime);
@@ -162,6 +188,12 @@ class Player : AnimatedGameObject
         }
     }
 
+    // Apply spped boost method
+    public void ApplySpeedBoost(float duration)
+    {
+        speedBoostTimeLeft = duration;
+        currentWalkingSpeed = boostedSpeed;
+    }
     void ApplyFriction(GameTime gameTime)
     {
         // determine the friction coefficient for the character

@@ -9,10 +9,9 @@ partial class Level : GameObjectList
     public const int TileHeight = 55;
     public int TimeLimitSeconds { get; private set; } = 30;
 
-    
-
     Tile[,] tiles;
     List<WaterDrop> waterDrops;
+   
 
     public Player Player { get; private set; }
     public int LevelIndex { get; private set; }
