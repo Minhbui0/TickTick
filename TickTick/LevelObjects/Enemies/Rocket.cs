@@ -80,7 +80,7 @@ class Rocket : AnimatedGameObject
                 Vector2 playerVel = level.Player.Velocity;
                 playerVel.Y = -600; // make the player bounce
                 level.Player.Velocity = playerVel;
-                //ExtendedGame.AssetManager.PlaySoundEffect("Sounds/snd_stomp");
+                ExtendedGame.AssetManager.PlaySoundEffect("Sounds/snd_stomp");
             }
             // otherwise regular player death
             else
